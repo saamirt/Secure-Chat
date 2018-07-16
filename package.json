@@ -4,8 +4,13 @@
   "description": "Chat site made to be as secure as possible. A playground for any security features I want to learn to implement.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "mon": "nodemon index.js --watch"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.3",
+    "nodemon": "^1.18.2"
+  }
 }
