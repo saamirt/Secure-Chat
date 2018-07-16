@@ -1,0 +1,11 @@
+{
+  "name": "secure-chat",
+  "version": "1.0.0",
+  "description": "Chat site made to be as secure as possible. A playground for any security features I want to learn to implement.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
