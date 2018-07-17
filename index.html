@@ -15,11 +15,11 @@
 </head>
 
 <body>
-    <div class = "headerText">
+    <div class="headerText">
         <h1>Secure Chat</h1>
         <div>
             <h4>Your Room ID:</h4>
-            <h2>2M13NnNDJASE2jAan1</h2>
+            <h2 id="roomID"></h2>
         </div>
     </div>
     <div class="centered unselectable">
@@ -36,7 +36,50 @@
         </div>
     </div>
     <div class="bgPattern"></div>
-    <script src="files/script.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io('http://localhost:8082');
+
+        //Clicking Send button
+        $('#chatSendBtn').click(function (event) {
+            //$('#chatFloatingText').val($('#chatSendInput').val());
+            // $('#chatFloatingText').addClass('animate');
+            socket.broadcast.to("testroom0").emit('send message', $('#chatSendInput').val());
+            $('#chatSendInput').val("");
+            /*setTimeout(() => {
+                $('#chatFloatingText').removeClass('animate');
+            }, 600);*/
+        });
+
+        //Pressing enter on input
+        $('#chatSendInput').keyup(function () {
+            if (event.keyCode === 13) {
+                //$('#chatFloatingText').val($('#chatSendInput').val());
+                //$('#chatFloatingText').addClass('animate');
+                socket.broadcast.to("testroom0").emit('send message', $('#chatSendInput').val());
+                $('#chatSendInput').val("");
+                /*setTimeout(() => {
+                    $('#chatFloatingText').removeClass('animate');
+                }, 600);*/
+            }
+        });
+
+        function getQueryItems() {
+            query = {};
+            regex = new RegExp(/(?<=(&|\?))\w+=\w+/g);
+            while ((result = regex.exec(window.location)) !== null) {
+                queryArray = result[0].split("=")
+                query[queryArray[0]] = queryArray[1];
+            }
+            return query;
+        }
+        query = getQueryItems();
+        if (query["room"]) {
+            $('#roomID').text(query["room"]);
+        } else {
+            $('#roomID').text(123);
+        }
+    </script>
 </body>
 
 </html>
