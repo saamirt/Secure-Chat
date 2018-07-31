@@ -1,5 +1,5 @@
 html {
-    overflow: auto;
+    overflow: hidden;
 }
 
 ::-webkit-scrollbar {
@@ -13,6 +13,18 @@ html {
     border: none;
     outline: none;
     box-sizing: border-box;
+    scroll-behavior: smooth;
+}
+
+@media (max-height: 535px) {
+    .headerText {
+        transform: scale(1.1) !important;
+        opacity: 0 !important;
+    }
+    .navbar {
+        transform: scale(1.1) !important;
+        opacity: 0 !important;
+    }
 }
 
 body {
@@ -57,7 +69,7 @@ body {
 #chatSendBtn {
     border-top-right-radius: 999999px !important;
     border-bottom-right-radius: 999999px !important;
-    background-color: #61E56E !important;
+    background-color: rgb(97, 229, 110) !important;
     border: none;
     font-weight: 600;
     height: 100%;
@@ -135,25 +147,20 @@ button:focus:not(:active)::after {
     animation: sendTextUp 600ms ease-out;
 }
 
-
-/* DEMO-SPECIFIC STYLES */
-
 .receivedMsg {
     font-size: 14px;
     width: 500px;
-    height: 46px;
-    background-color: rgb(236, 236, 236);
-    padding: 6px 17px;
-    border-radius: 34px;
-    border: 2px solid rgb(177, 177, 177);
-    color: rgb(133, 133, 133);
+    height: 230px;
+    background-color: rgb(255, 255, 255);
+    padding: 12px 17px;
+    border-radius: 23px;
 }
 
 .typewriter {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     width: fit-content;
-    height: 100%;
 }
 
 .typewriter * {
@@ -208,7 +215,7 @@ button:focus:not(:active)::after {
     text-align: center;
     flex-direction: column;
     justify-content: space-between;
-    
+    transition: opacity 600ms,transform 600ms;
 }
 .headerText h1{
     font-weight: 800;
@@ -219,6 +226,65 @@ button:focus:not(:active)::after {
 .headerText h4{
     font-weight:600;
     font-size: 14px;
+}
+
+.navbar{
+    width: 100%;
+    transition: opacity 600ms,transform 600ms;
+}
+
+.nav-item .btn{
+    margin: 0px 3px;
+    background: none;
+    font-size: 20px;
+    color: white;
+    transition: all 300ms;
+}
+
+.nav-item .btn:hover{
+    color: rgb(211, 211, 211);
+}
+
+.nav-item .btn:focus {
+    outline:none;
+}
+
+.nav-item .btn:active{
+    color: rgb(158, 158, 158);
+}
+
+.dropdown-menu{
+    font-size: 14px;
+    width: 300px;
+}
+
+.dropdown-menu p{
+    margin-bottom: 0.5rem;
+}
+
+.dropdown-menu div{
+    padding: .25rem 1.5rem;
+}
+
+.dropdown-menu input,.dropdown-menu input:focus{
+    font-size: 14px;
+    border-radius: 5px !important;
+    background-color: rgb(247, 247, 247);
+    border: 1px solid rgb(233, 236, 239);
+    height: 36px;
+}
+
+.dropdown-item:active{
+    background-color: rgb(97, 229, 110);
+}
+
+.show > #navbarDropdown{
+    transform: rotate(45deg);
+}
+
+.ontop{
+    position: absolute;
+    z-index: 999999;
 }
 
 .centered {

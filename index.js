@@ -1,7 +1,7 @@
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-
+var count = 0;
 app.get('/', function (req, res) {
     res.sendFile(__dirname + '/index.html');
 });
@@ -12,6 +12,10 @@ app.get('/files/:fileName', function (req, res) {
 
 io.on('connection', function (socket) {
     console.log('SOCKET.IO :: New User Joined');
+    count++;
+    socket.on('send message', function (message) {
+        console.log(message);
+    });
     socket.on('disconnect', function () {
         console.log('user disconnected');
         count--;

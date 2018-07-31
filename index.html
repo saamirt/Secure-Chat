@@ -11,19 +11,72 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
 
+    <!--https://fontawesome.com/license for license-->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+        crossorigin="anonymous">
+
     <link rel="stylesheet" href="files/style.css">
 </head>
 
 <body>
+    <nav class="navbar navbar-expand-sm ontop">
+
+        <!-- Links -->
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item dropdown">
+                <div class="btn dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-plus"></i>
+                </div>
+                <div class="dropdown-menu dropdown-menu-right" id="test" aria-labelledby="navbarDropdown">
+                    <div>
+                        <p>Connect to a new room</p>
+                        <input type="text" class="form-control" autocomplete="off" placeholder="Enter Room ID" id="roomInput">
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" data-toggle="modal" data-target="#roomIDModal">Get Current Room ID</a>
+                    <a class="dropdown-item" data-toggle="modal" data-target="#creditsModal">Credits</a>
+                </div>
+            </li>
+        </ul>
+
+    </nav>
+    <div class="modal fade" id="roomIDModal">
+        <div class="modal-dialog modal-dialog-centered" style="width: 300px;">
+            <div class="modal-content">
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h6 class="modal-title">Room ID</h6>
+                    <h1 class="modal-title roomID"></h1>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="creditsModal">
+        <div class="modal-dialog modal-dialog-centered" style="width: 300px;">
+            <div class="modal-content">
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h6 class="modal-title">Creator</h6>
+                    <h1 class="modal-title">Aamir Tahir</h1>
+                </div>
+
+            </div>
+        </div>
+    </div>
     <div class="headerText">
-        <h1>Secure Chat</h1>
+        <h1 class="unselectable">Secure Chat</h1>
         <div>
-            <h4>Your Room ID:</h4>
-            <h2 id="roomID"></h2>
+            <h4 class="unselectable">Your Room ID:</h4>
+            <h2 id="roomID" class="roomID"></h2>
         </div>
     </div>
     <div class="centered unselectable">
-        <div class="form-group receivedMsg">
+        <div class="form-group receivedMsg" id="chatMessages">
             <div class="typewriter">
                 <p>This is a sample received message.</p>
             </div>
@@ -39,12 +92,20 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         var socket = io('http://localhost:8082');
+        var roomID = "KMjiWjo4Sr";
 
         //Clicking Send button
         $('#chatSendBtn').click(function (event) {
             //$('#chatFloatingText').val($('#chatSendInput').val());
             // $('#chatFloatingText').addClass('animate');
-            socket.broadcast.to("testroom0").emit('send message', $('#chatSendInput').val());
+            socket.emit('send message', $('#chatSendInput').val());
+            message = $('#chatSendInput').val();
+            lines = message.match(/.{1,62}/g);
+            lines.forEach(element => {
+                setTimeout(() => {
+                    $('#chatMessages').append($('<div class="typewriter">').append($('<p>').text(element)));
+                }, 700);
+            });
             $('#chatSendInput').val("");
             /*setTimeout(() => {
                 $('#chatFloatingText').removeClass('animate');
@@ -56,7 +117,14 @@
             if (event.keyCode === 13) {
                 //$('#chatFloatingText').val($('#chatSendInput').val());
                 //$('#chatFloatingText').addClass('animate');
-                socket.broadcast.to("testroom0").emit('send message', $('#chatSendInput').val());
+                socket.emit('send message', $('#chatSendInput').val());
+                message = $('#chatSendInput').val();
+                lines = message.match(/.{1,62}/g);
+                lines.forEach(element => {
+                    setTimeout(() => {
+                        $('#chatMessages').append($('<div class="typewriter">').append($('<p>').text(element)));
+                    },);
+                });
                 $('#chatSendInput').val("");
                 /*setTimeout(() => {
                     $('#chatFloatingText').removeClass('animate');
@@ -75,9 +143,10 @@
         }
         query = getQueryItems();
         if (query["room"]) {
-            $('#roomID').text(query["room"]);
+            roomID = query["room"];
+            $('.roomID').text(roomID);
         } else {
-            $('#roomID').text(123);
+            $('.roomID').text("KMjiWjo4Sr");
         }
     </script>
 </body>
