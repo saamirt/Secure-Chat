@@ -114,14 +114,14 @@
 
         //Clicking join button
         $('#nickBtn').click(function (event) {
-            socket.emit('new user', {nickname : $('#nickInput').val().toLowerCase(), room : roomID}, function (data) {
+            socket.emit('new user', { nickname: $('#nickInput').val().toLowerCase(), room: roomID }, function (data) {
                 if (data) {
                     $('#nickDialog').addClass('hidden');
                     $('#nickInput').val("");
                     $('#chatDialog').removeClass('hidden');
                 } else {
-                    console.log("Username already taken!");
-                    $('#nickInput').val("Username already taken!");
+                    console.log("Cannot use that username!");
+                    $('#nickInput').val("Cannot use that username!");
                 }
             });
         });
@@ -129,15 +129,32 @@
         //Pressing enter on nickname input
         $('#nickInput').keyup(function (event) {
             if (event.keyCode === 13) {
-                socket.emit('new user', {nickname : $('#nickInput').val().toLowerCase(), room : roomID}, function (data) {
+                socket.emit('new user', { nickname: $('#nickInput').val().toLowerCase(), room: roomID }, function (data) {
                     if (data) {
                         $('#nickDialog').addClass('hidden');
                         $('#nickInput').val("");
                         $('#chatDialog').removeClass('hidden');
                     } else {
-                        console.log("Username already taken!");
-                        $('#nickInput').val("Username already taken!");
+                        console.log("Cannot use that username!");
+                        $('#nickInput').val("Cannot use that username!");
                     }
+                });
+            }
+        });
+
+        //Pressing enter on nickname input
+        $('#roomInput').keyup(function (event) {
+            if (event.keyCode === 13) {
+                socket.emit('change room', { room: $('#roomInput').val().toLowerCase().trim() }, function (data) {
+                    if (data) {
+                        roomID = $('#roomInput').val().toLowerCase();
+                        $('.roomID').text(roomID);
+                        $('#roomInput').attr("placeholder","Enter Room ID");
+                    } else {
+                        console.log("Invalid Room");
+                        $('#roomInput').attr("placeholder","Invalid Room");
+                    }
+                    $('#roomInput').val('');
                 });
             }
         });
@@ -159,7 +176,7 @@
             }
         });
 
-        socket.on('message',function(message){
+        socket.on('message', function (message) {
             writeMessageToChat('plainMessage', message);
         });
 
@@ -168,9 +185,7 @@
                 console.log(message);
                 lines = message.match(/.{1,62}/g);
                 lines.forEach(element => {
-                    setTimeout(() => {
-                        $('#chatMessages').append($('<div class="typewriter">').append($('<p>').text(element)));
-                    }, 700);
+                    $('#chatMessages').append($('<div class="typewriter">').append($('<p>').text(element)));
                 });
             }
             if (fn.match(/\W/)) {
@@ -178,6 +193,7 @@
             }
             var func = eval(fn);
             func(...params);
+            $('#chatMessages').scrollTop($('#chatMessages').prop("scrollHeight"));
         }
 
         function getQueryItems() {

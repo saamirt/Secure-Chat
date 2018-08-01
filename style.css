@@ -168,8 +168,6 @@ button:focus:not(:active)::after {
     overflow: hidden;
     border-right: 0em solid rgb(243, 243, 243);
     white-space: nowrap;
-    animation: typing .7s steps(12, end),
-    blink-caret .5s step-end infinite;
     height: 100%;
     margin: 0;
 }
