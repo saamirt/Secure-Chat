@@ -66,7 +66,7 @@ body {
     box-shadow: none !important;
 }
 
-#chatSendBtn {
+.submit-btn {
     border-top-right-radius: 999999px !important;
     border-bottom-right-radius: 999999px !important;
     background-color: rgb(97, 229, 110) !important;
@@ -78,7 +78,7 @@ body {
     width: 80.8px;
 }
 
-#chatSendBtn:hover {
+.submit-btn:hover {
     background-color: rgb(93, 248, 108) !important;
     color: rgb(70, 70, 70);
 }
@@ -280,6 +280,10 @@ button:focus:not(:active)::after {
 
 .show > #navbarDropdown{
     transform: rotate(45deg);
+}
+
+.hidden{
+    display: none;
 }
 
 .ontop{

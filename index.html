@@ -76,6 +76,14 @@
         </div>
     </div>
     <div class="centered unselectable">
+        <div class="input-group">
+            <input type="text" class="form-control" autocomplete="off" placeholder="Choose a Nickname" id="nickInput">
+            <span class="input-group-btn">
+                <button class="btn btn-success submit-btn" type="button" id="nickBtn">Join</button>
+            </span>
+        </div>
+    </div>
+    <div class="centered unselectable hidden">
         <div class="form-group receivedMsg" id="chatMessages">
             <div class="typewriter">
                 <p>This is a sample received message.</p>
@@ -84,7 +92,7 @@
         <div class="input-group">
             <input type="text" class="form-control" autocomplete="off" placeholder="Enter message" id="chatSendInput">
             <span class="input-group-btn">
-                <button class="btn btn-success" type="button" id="chatSendBtn">Send</button>
+                <button class="btn btn-success submit-btn" type="button" id="chatSendBtn">Send</button>
             </span>
         </div>
     </div>
@@ -92,7 +100,13 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         var socket = io('http://localhost:8082');
-        var roomID = "KMjiWjo4Sr";
+        var count = 0;
+        var roomID = generateRoomID();
+        
+        //Clicking join button
+        $('#nickBtn').click(function (event) {
+            socket.emit('send message', $('#nickInput').val());
+        });
 
         //Clicking Send button
         $('#chatSendBtn').click(function (event) {
@@ -123,7 +137,7 @@
                 lines.forEach(element => {
                     setTimeout(() => {
                         $('#chatMessages').append($('<div class="typewriter">').append($('<p>').text(element)));
-                    },);
+                    }, );
                 });
                 $('#chatSendInput').val("");
                 /*setTimeout(() => {
@@ -131,6 +145,11 @@
                 }, 600);*/
             }
         });
+
+        function generateRoomID() {
+            count++;
+            return count;
+        }
 
         function getQueryItems() {
             query = {};
@@ -144,10 +163,8 @@
         query = getQueryItems();
         if (query["room"]) {
             roomID = query["room"];
-            $('.roomID').text(roomID);
-        } else {
-            $('.roomID').text("KMjiWjo4Sr");
         }
+        $('.roomID').text(roomID);
     </script>
 </body>
 
