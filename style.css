@@ -29,7 +29,7 @@ html {
 
 body {
     font-family: 'Montserrat', sans-serif;
-    background-color: rgb(116, 0, 255);
+    background-color: rgb(140, 0, 255);
 }
 
 .bgPattern {
@@ -228,6 +228,13 @@ button:focus:not(:active)::after {
 .headerText h4{
     font-weight:600;
     font-size: 14px;
+}
+
+#nickDialog h3{
+    color: white;
+    font-weight: 600;
+    font-size: 20px;
+    margin-bottom: 20px;
 }
 
 .navbar{

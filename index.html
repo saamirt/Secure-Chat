@@ -41,7 +41,7 @@
 
     </nav>
     <div class="modal fade" id="roomIDModal">
-        <div class="modal-dialog modal-dialog-centered" style="width: fit-content;">
+        <div class="modal-dialog modal-dialog-centered" style="width: fit-content; min-width: 150px;">
             <div class="modal-content">
 
                 <!-- Modal body -->
@@ -75,7 +75,8 @@
             <h2 id="roomID" class="roomID"></h2>
         </div>
     </div>
-    <div class="centered unselectable">
+    <div class="centered unselectable" id="nickDialog">
+        <h3 style="text-align: center;">Choose a nickname to begin</h3>
         <div class="input-group">
             <input type="text" class="form-control" autocomplete="off" placeholder="Choose a Nickname" id="nickInput">
             <span class="input-group-btn">
@@ -83,7 +84,7 @@
             </span>
         </div>
     </div>
-    <div class="centered unselectable hidden">
+    <div class="centered unselectable hidden" id="chatDialog">
         <div class="form-group receivedMsg" id="chatMessages">
             <div class="typewriter">
                 <p>This is a sample received message.</p>
@@ -100,48 +101,68 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         var socket = io('http://localhost:8082');
-        var count = 0;
-        var roomID = generateRoomID();
-        
-        //Clicking join button
-        $('#nickBtn').click(function (event) {
-            socket.emit('send message', $('#nickInput').val());
+        var roomID = 0;
+
+        socket.emit('new connection', function (data) {
+            queryRoom = getQueryItems()['room'];
+            if (queryRoom) {
+                queryRoom = queryRoom.substring(0, 20);
+            }
+            roomID = queryRoom || data + 1;
+            $('.roomID').text(roomID);
         });
 
+        //Clicking join button
+        $('#nickBtn').click(function (event) {
+            socket.emit('new user', {nickname : $('#nickInput').val().toLowerCase(), room : roomID}, function (data) {
+                if (data) {
+                    $('#nickDialog').addClass('hidden');
+                    $('#nickInput').val("");
+                    $('#chatDialog').removeClass('hidden');
+                } else {
+                    console.log("Username already taken!");
+                    $('#nickInput').val("Username already taken!");
+                }
+            });
+        });
+
+        //Pressing enter on nickname input
+        $('#nickInput').keyup(function (event) {
+            if (event.keyCode === 13) {
+                socket.emit('new user', {nickname : $('#nickInput').val().toLowerCase(), room : roomID}, function (data) {
+                    if (data) {
+                        $('#nickDialog').addClass('hidden');
+                        $('#nickInput').val("");
+                        $('#chatDialog').removeClass('hidden');
+                    } else {
+                        console.log("Username already taken!");
+                        $('#nickInput').val("Username already taken!");
+                    }
+                });
+            }
+        });
         //Clicking Send button
         $('#chatSendBtn').click(function (event) {
-            //$('#chatFloatingText').val($('#chatSendInput').val());
-            // $('#chatFloatingText').addClass('animate');
             socket.emit('message', $('#chatSendInput').val());
             message = $('#chatSendInput').val();
             writeMessageToChat('plainMessage', message);
             $('#chatSendInput').val("");
-            /*setTimeout(() => {
-                $('#chatFloatingText').removeClass('animate');
-            }, 600);*/
         });
 
         //Pressing enter on input
-        $('#chatSendInput').keyup(function () {
+        $('#chatSendInput').keyup(function (event) {
             if (event.keyCode === 13) {
-                //$('#chatFloatingText').val($('#chatSendInput').val());
-                //$('#chatFloatingText').addClass('animate');
                 socket.emit('message', $('#chatSendInput').val());
                 message = $('#chatSendInput').val();
                 writeMessageToChat('plainMessage', message);
->>>>>>> 5b281356084bb3b6086c1fa4a715b50a870b3b3a
                 $('#chatSendInput').val("");
-                /*setTimeout(() => {
-                    $('#chatFloatingText').removeClass('animate');
-                }, 600);*/
             }
         });
 
-<<<<<<< HEAD
-        function generateRoomID() {
-            count++;
-            return count;
-=======
+        socket.on('message',function(message){
+            writeMessageToChat('plainMessage', message);
+        });
+
         function writeMessageToChat(fn, ...params) {
             function plainMessage(message) {
                 console.log(message);
@@ -152,12 +173,11 @@
                     }, 700);
                 });
             }
-            if (fn.match(/\W/))
+            if (fn.match(/\W/)) {
                 throw "invalid function name";
-
+            }
             var func = eval(fn);
-            func(...params)
->>>>>>> 5b281356084bb3b6086c1fa4a715b50a870b3b3a
+            func(...params);
         }
 
         function getQueryItems() {
@@ -169,11 +189,6 @@
             }
             return query;
         }
-        query = getQueryItems();
-        if (query["room"]) {
-            roomID = query["room"];
-        }
-        $('.roomID').text(roomID);
     </script>
 </body>
 
