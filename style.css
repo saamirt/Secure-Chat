@@ -29,7 +29,7 @@ html {
 
 body {
     font-family: 'Montserrat', sans-serif;
-    background-color: #9d00ff;
+    background-color: rgb(116, 0, 255);
 }
 
 .bgPattern {
@@ -148,6 +148,7 @@ button:focus:not(:active)::after {
 }
 
 .receivedMsg {
+    overflow: auto;
     font-size: 14px;
     width: 500px;
     height: 230px;
@@ -218,6 +219,7 @@ button:focus:not(:active)::after {
     transition: opacity 600ms,transform 600ms;
 }
 .headerText h1{
+    font-size: 48px;
     font-weight: 800;
 }
 .headerText h2{

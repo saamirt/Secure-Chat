@@ -24,6 +24,6 @@ io.on('connection', function (socket) {
 
 var server = http.listen(8082, function () {
     var port = server.address().port
-
+    
     console.log('Secure Chat listening at http://localhost:' + port);
 });

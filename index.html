@@ -41,7 +41,7 @@
 
     </nav>
     <div class="modal fade" id="roomIDModal">
-        <div class="modal-dialog modal-dialog-centered" style="width: 300px;">
+        <div class="modal-dialog modal-dialog-centered" style="width: fit-content;">
             <div class="modal-content">
 
                 <!-- Modal body -->
@@ -112,14 +112,9 @@
         $('#chatSendBtn').click(function (event) {
             //$('#chatFloatingText').val($('#chatSendInput').val());
             // $('#chatFloatingText').addClass('animate');
-            socket.emit('send message', $('#chatSendInput').val());
+            socket.emit('message', $('#chatSendInput').val());
             message = $('#chatSendInput').val();
-            lines = message.match(/.{1,62}/g);
-            lines.forEach(element => {
-                setTimeout(() => {
-                    $('#chatMessages').append($('<div class="typewriter">').append($('<p>').text(element)));
-                }, 700);
-            });
+            writeMessageToChat('plainMessage', message);
             $('#chatSendInput').val("");
             /*setTimeout(() => {
                 $('#chatFloatingText').removeClass('animate');
@@ -131,14 +126,18 @@
             if (event.keyCode === 13) {
                 //$('#chatFloatingText').val($('#chatSendInput').val());
                 //$('#chatFloatingText').addClass('animate');
-                socket.emit('send message', $('#chatSendInput').val());
+                socket.emit('message', $('#chatSendInput').val());
                 message = $('#chatSendInput').val();
+<<<<<<< HEAD
                 lines = message.match(/.{1,62}/g);
                 lines.forEach(element => {
                     setTimeout(() => {
                         $('#chatMessages').append($('<div class="typewriter">').append($('<p>').text(element)));
                     }, );
                 });
+=======
+                writeMessageToChat('plainMessage', message);
+>>>>>>> 5b281356084bb3b6086c1fa4a715b50a870b3b3a
                 $('#chatSendInput').val("");
                 /*setTimeout(() => {
                     $('#chatFloatingText').removeClass('animate');
@@ -146,9 +145,27 @@
             }
         });
 
+<<<<<<< HEAD
         function generateRoomID() {
             count++;
             return count;
+=======
+        function writeMessageToChat(fn, ...params) {
+            function plainMessage(message) {
+                console.log(message);
+                lines = message.match(/.{1,62}/g);
+                lines.forEach(element => {
+                    setTimeout(() => {
+                        $('#chatMessages').append($('<div class="typewriter">').append($('<p>').text(element)));
+                    }, 700);
+                });
+            }
+            if (fn.match(/\W/))
+                throw "invalid function name";
+
+            var func = eval(fn);
+            func(...params)
+>>>>>>> 5b281356084bb3b6086c1fa4a715b50a870b3b3a
         }
 
         function getQueryItems() {
