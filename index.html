@@ -128,14 +128,6 @@
                 //$('#chatFloatingText').addClass('animate');
                 socket.emit('message', $('#chatSendInput').val());
                 message = $('#chatSendInput').val();
-<<<<<<< HEAD
-                lines = message.match(/.{1,62}/g);
-                lines.forEach(element => {
-                    setTimeout(() => {
-                        $('#chatMessages').append($('<div class="typewriter">').append($('<p>').text(element)));
-                    }, );
-                });
-=======
                 writeMessageToChat('plainMessage', message);
 >>>>>>> 5b281356084bb3b6086c1fa4a715b50a870b3b3a
                 $('#chatSendInput').val("");
