@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
         crossorigin="anonymous">
 
-    <link rel="stylesheet" href="files/style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -27,12 +27,13 @@
                 <div class="btn dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i class="fas fa-plus"></i>
                 </div>
-                <div class="dropdown-menu dropdown-menu-right" id="test" aria-labelledby="navbarDropdown">
+                <div class="dropdown-menu dropdown-menu-right unselectable" aria-labelledby="navbarDropdown">
                     <div>
                         <p>Connect to a new room</p>
                         <input type="text" class="form-control" autocomplete="off" placeholder="Enter Room ID" id="roomInput">
                     </div>
                     <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" id = "toggleTheme">Switch to Dark Theme</a>
                     <a class="dropdown-item" data-toggle="modal" data-target="#roomIDModal">Get Current Room ID</a>
                     <a class="dropdown-item" data-toggle="modal" data-target="#creditsModal">Credits</a>
                 </div>
@@ -86,9 +87,6 @@
     </div>
     <div class="centered unselectable hidden" id="chatDialog">
         <div class="form-group receivedMsg" id="chatMessages">
-            <div class="typewriter">
-                <p>This is a sample received message.</p>
-            </div>
         </div>
         <div class="input-group">
             <input type="text" class="form-control" autocomplete="off" placeholder="Enter message" id="chatSendInput">
@@ -99,113 +97,8 @@
     </div>
     <div class="bgPattern"></div>
     <script src="/socket.io/socket.io.js"></script>
-    <script>
-        var socket = io('http://localhost:8082');
-        var roomID = 0;
-
-        socket.emit('new connection', function (data) {
-            queryRoom = getQueryItems()['room'];
-            if (queryRoom) {
-                queryRoom = queryRoom.substring(0, 20);
-            }
-            roomID = queryRoom || data + 1;
-            $('.roomID').text(roomID);
-        });
-
-        //Clicking join button
-        $('#nickBtn').click(function (event) {
-            socket.emit('new user', { nickname: $('#nickInput').val().toLowerCase(), room: roomID }, function (data) {
-                if (data) {
-                    $('#nickDialog').addClass('hidden');
-                    $('#nickInput').val("");
-                    $('#chatDialog').removeClass('hidden');
-                } else {
-                    console.log("Cannot use that username!");
-                    $('#nickInput').val("Cannot use that username!");
-                }
-            });
-        });
-
-        //Pressing enter on nickname input
-        $('#nickInput').keyup(function (event) {
-            if (event.keyCode === 13) {
-                socket.emit('new user', { nickname: $('#nickInput').val().toLowerCase(), room: roomID }, function (data) {
-                    if (data) {
-                        $('#nickDialog').addClass('hidden');
-                        $('#nickInput').val("");
-                        $('#chatDialog').removeClass('hidden');
-                    } else {
-                        console.log("Cannot use that username!");
-                        $('#nickInput').val("Cannot use that username!");
-                    }
-                });
-            }
-        });
-
-        //Pressing enter on nickname input
-        $('#roomInput').keyup(function (event) {
-            if (event.keyCode === 13) {
-                socket.emit('change room', { room: $('#roomInput').val().toLowerCase().trim() }, function (data) {
-                    if (data) {
-                        roomID = $('#roomInput').val().toLowerCase();
-                        $('.roomID').text(roomID);
-                        $('#roomInput').attr("placeholder","Enter Room ID");
-                    } else {
-                        console.log("Invalid Room");
-                        $('#roomInput').attr("placeholder","Invalid Room");
-                    }
-                    $('#roomInput').val('');
-                });
-            }
-        });
-        //Clicking Send button
-        $('#chatSendBtn').click(function (event) {
-            socket.emit('message', $('#chatSendInput').val());
-            message = $('#chatSendInput').val();
-            writeMessageToChat('plainMessage', message);
-            $('#chatSendInput').val("");
-        });
-
-        //Pressing enter on input
-        $('#chatSendInput').keyup(function (event) {
-            if (event.keyCode === 13) {
-                socket.emit('message', $('#chatSendInput').val());
-                message = $('#chatSendInput').val();
-                writeMessageToChat('plainMessage', message);
-                $('#chatSendInput').val("");
-            }
-        });
-
-        socket.on('message', function (message) {
-            writeMessageToChat('plainMessage', message);
-        });
-
-        function writeMessageToChat(fn, ...params) {
-            function plainMessage(message) {
-                console.log(message);
-                lines = message.match(/.{1,62}/g);
-                lines.forEach(element => {
-                    $('#chatMessages').append($('<div class="typewriter">').append($('<p>').text(element)));
-                });
-            }
-            if (fn.match(/\W/)) {
-                throw "invalid function name";
-            }
-            var func = eval(fn);
-            func(...params);
-            $('#chatMessages').scrollTop($('#chatMessages').prop("scrollHeight"));
-        }
-
-        function getQueryItems() {
-            query = {};
-            regex = new RegExp(/(?<=(&|\?))\w+=\w+/g);
-            while ((result = regex.exec(window.location)) !== null) {
-                queryArray = result[0].split("=")
-                query[queryArray[0]] = queryArray[1];
-            }
-            return query;
-        }
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script>
+    <script src="js/site.js"></script>
 </body>
 
 </html>
