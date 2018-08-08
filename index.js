@@ -136,7 +136,15 @@ var server = http.listen(8082, function () {
 
 function generateHSLColor(colorArray) {
     color = Math.round(Math.random() * 360);
-    while (colorArray.includes(color)) {
+    checkIfUnique = function(color,colorArray){
+        colorArray.forEach((storedColor)=>{
+            if (color < (storedColor + 10) && color > (storedColor + 10)){
+                return true;
+            }
+        });
+        return false;
+    }
+    while (checkIfUnique(color,colorArray)) {
         color = Math.round(Math.random() * 360);
     }
     return color;
