@@ -33,7 +33,7 @@
                         <input type="text" class="form-control" autocomplete="off" placeholder="Enter Room ID" id="roomInput">
                     </div>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" id="toggleTheme">Switch to Dark Theme</a>
+                    <a class="dropdown-item" id = "toggleTheme">Switch to Dark Theme</a>
                     <a class="dropdown-item" data-toggle="modal" data-target="#roomIDModal">Get Current Room ID</a>
                     <a class="dropdown-item" data-toggle="modal" data-target="#creditsModal">Credits</a>
                 </div>
@@ -86,15 +86,13 @@
         </div>
     </div>
     <div class="centered unselectable hidden" id="chatDialog">
-        <div class="form-group receivedMsg" id="chatMessages">
-            <div style="text-align: center;">
-            </div>
-        </div>
-        <div class="input-group">
+        <div class="input-group ontop chat-input">
             <input type="text" class="form-control" autocomplete="off" placeholder="Enter message" id="chatSendInput">
             <span class="input-group-btn">
-                <button class="btn btn-success submit-btn" type="button" id="chatSendBtn">Send</button>
+                <button class="btn submit-btn" type="button" id="chatSendBtn">Send</button>
             </span>
+        </div>
+        <div class="form-group receivedMsg" id="chatMessages">
         </div>
     </div>
     <div class="bgPattern"></div>

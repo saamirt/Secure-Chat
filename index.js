@@ -32,10 +32,10 @@ io.on('connection', function (socket) {
     })
 
     socket.on('message', function (message) {
+        if (!message) { return };
         console.log("'" + socket.nickname + "' to room '" + socket.room + "' : " + message);
-        rooms[socket.room].messages.push({ author: socket.nickname, message: message });
-        io.to(socket.room).emit('message', { message: message, title: { value: socket.nickname, color: rooms[socket.room].members[socket.nickname].color } });
-        console.log(rooms[socket.room]);
+        rooms[socket.room].messages.push({ messageType: 'plainMessage', message: message, title: { value: socket.nickname, color: rooms[socket.room].members[socket.nickname].color } });
+        io.to(socket.room).emit('message', { messageType: 'plainMessage', message: message, title: { value: socket.nickname, color: rooms[socket.room].members[socket.nickname].color } });
     });
 
     socket.on('new user', function (data, callback) {
@@ -57,6 +57,12 @@ io.on('connection', function (socket) {
             rooms[socket.room].members[socket.nickname] = { color: color };
 
             socket.join(socket.room);
+            rooms[socket.room].messages.forEach(data => {
+                console.log(data);
+                socket.emit('message', data);
+            });
+            rooms[socket.room].messages.push({ messageType: 'actionMessage', message: socket.nickname + " has joined room '" + socket.room + "'"});
+            io.to(socket.room).emit('message', { messageType: 'actionMessage', message: socket.nickname + " has joined room '" + socket.room + "'"});
             users[socket.nickname] = socket;
             console.log("User chose '" + socket.nickname + "' as their nickname and joined room '" + socket.room + "'");
         }
@@ -90,6 +96,12 @@ io.on('connection', function (socket) {
             color = generateHSLColor(colorArray);
             rooms[socket.room].members[socket.nickname] = { color: color };
             socket.join(socket.room);
+            rooms[socket.room].messages.forEach(data => {
+                console.log(data);
+                socket.emit('message', data);
+            });
+            rooms[socket.room].messages.push({ messageType: 'actionMessage', message: socket.nickname + " has joined room '" + socket.room + "'"});
+            io.to(socket.room).emit('message', { messageType: 'actionMessage', message: socket.nickname + " has joined room '" + socket.room + "'"});
         } else {
             callback(false);
         }
@@ -105,6 +117,8 @@ io.on('connection', function (socket) {
         console.log("Deleting user '" + socket.nickname + "'");
         delete users[socket.nickname];
         delete rooms[socket.room].members[socket.nickname];
+        rooms[socket.room].messages.push({ messageType: 'actionMessage', message: socket.nickname + " has left the room"});
+        io.to(socket.room).emit('message', { messageType: 'actionMessage', message: socket.nickname + " has left the room"});
 
         //checks if room needs to be deleted
         if (Object.keys(rooms[socket.room].members).length === 0) {

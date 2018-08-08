@@ -1,5 +1,6 @@
 var socket = io('http://localhost:8082');
 var roomID = 0;
+var isFirstMessage = true;
 
 socket.emit('new connection', function (data) {
     query = getQueryItems()
@@ -32,7 +33,7 @@ $('#toggleTheme').click(function(){
 
 //Clicking join button
 $('#nickBtn').click(function (event) {
-    socket.emit('new user', { nickname: $('#nickInput').val().toLowerCase().trim(), room: roomID }, function (data) {
+    socket.emit('new user', { nickname: $('#nickInput').val().trim(), room: roomID }, function (data) {
         if (data) {
             $('#nickDialog').addClass('hidden');
             $('#chatDialog').removeClass('hidden');
@@ -48,7 +49,7 @@ $('#nickBtn').click(function (event) {
 //Pressing enter on nickname input
 $('#nickInput').keyup(function (event) {
     if (event.keyCode === 13) {
-        socket.emit('new user', { nickname: $('#nickInput').val().toLowerCase().trim(), room: roomID }, function (data) {
+        socket.emit('new user', { nickname: $('#nickInput').val().trim(), room: roomID }, function (data) {
             if (data) {
                 $('#nickDialog').addClass('hidden');
                 $('#chatDialog').removeClass('hidden');
@@ -70,6 +71,7 @@ $('#roomInput').keyup(function (event) {
                 roomID = $('#roomInput').val().toLowerCase();
                 $('.roomID').text(roomID);
                 $('#roomInput').attr("placeholder", "Enter Room ID");
+                $('#chatMessages').empty();
             } else {
                 console.log("Invalid Room");
                 $('#roomInput').attr("placeholder", "Invalid Room");
@@ -80,44 +82,56 @@ $('#roomInput').keyup(function (event) {
 });
 //Clicking Send button
 $('#chatSendBtn').click(function (event) {
-    socket.emit('message', $('#chatSendInput').val());
-    $('#chatSendInput').val("");
+    if ($('#chatSendInput').val().trim()){
+        socket.emit('message', $('#chatSendInput').val());
+        $('#chatSendInput').val("");
+    }
 });
 
 //Pressing enter on input
 $('#chatSendInput').keyup(function (event) {
-    if (event.keyCode === 13) {
+    if (event.keyCode === 13 && $('#chatSendInput').val().trim()) {
         socket.emit('message', $('#chatSendInput').val());
         $('#chatSendInput').val("");
     }
 });
 
 socket.on('message', function (data) {
-    writeMessageToChat('plainMessage', data);
+    writeMessageToChat(data);
 });
 
-function writeMessageToChat(fn, ...params) {
+function writeMessageToChat(data) {
+    function writeTitle(data) {
+        // Capitalizes each word of title
+        // title = data.title.value.replace(/\w\S*/g, function (txt) {
+        //     return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        // });
+        return $('<p class = "title" style = "color : hsl(' + data.title.color + ', 100%, 46%);">').text(data.title.value);
+    }
+
     function plainMessage(data) {
-        console.log(data);
-
+        console.log(data.message);
         htmlText = $('<div>');
-        title = data.title.value.replace(/\w\S*/g, function (txt) {
-            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-        });
-        htmlText.append($('<p class = "title" style = "color : hsl(' + data.title.color + ', 100%, 46%);">').text(title));
-
-        lines = data.message.match(/.{1,62}/g);
-        lines.forEach(element => {
-            htmlText.append($('<p>').text(element));
-        });
-
+        htmlText.append(writeTitle(data));
+        htmlText.append($('<p class="plain-message">').text(data.message));
         $('#chatMessages').append(htmlText);
     }
-    if (fn.match(/\W/)) {
+
+    function actionMessage(data) {
+        htmlText = $('<div style="text-align : center;">');
+        htmlText.append($('<p class="action-message">').text(data.message));
+        $('#chatMessages').append(htmlText);
+    }
+
+    if (data.messageType.match(/\W/)) {
         throw "invalid function name";
     }
-    var func = eval(fn);
-    func(...params);
+    if (isFirstMessage){
+        $('#chatMessages').empty();
+        isFirstMessage = false;
+    }
+    var func = eval(data.messageType);
+    func(data);
     $('#chatMessages').scrollTop($('#chatMessages').prop("scrollHeight"));
 }
 
