@@ -61,8 +61,8 @@ io.on('connection', function (socket) {
                 console.log(data);
                 socket.emit('message', data);
             });
-            rooms[socket.room].messages.push({ messageType: 'actionMessage', message: socket.nickname + " has joined room '" + socket.room + "'"});
-            io.to(socket.room).emit('message', { messageType: 'actionMessage', message: socket.nickname + " has joined room '" + socket.room + "'"});
+            rooms[socket.room].messages.push({ messageType: 'actionMessage', message: socket.nickname + " has joined room '" + socket.room + "'" });
+            io.to(socket.room).emit('message', { messageType: 'actionMessage', message: socket.nickname + " has joined room '" + socket.room + "'" });
             users[socket.nickname] = socket;
             console.log("User chose '" + socket.nickname + "' as their nickname and joined room '" + socket.room + "'");
         }
@@ -70,8 +70,11 @@ io.on('connection', function (socket) {
 
     socket.on('change room', function (data, callback) {
         if (data.room.length <= 20 && data.room.match(/^[a-z0-9]+$/im)) {
+            if (data.room == socket.room) {
+                callback("You are already in this room");
+                return;
+            };
             callback(true);
-            if (data.room == socket.room) { return };
             if (!socket.nickname) { return };
 
             socket.leave(socket.room);
@@ -80,12 +83,13 @@ io.on('connection', function (socket) {
 
             //checks if room needs to be deleted
             if (Object.keys(rooms[socket.room].members).length === 0) {
-                console.log("Deleting room '" + socket.room + "'");
-                delete rooms[socket.room];
+                //console.log("Deleting room '" + socket.room + "'");
+                //delete rooms[socket.room];
+                console.log("Room is now empty");
             }
 
             socket.room = data.room;
-            if (!socket.room in rooms) {
+            if (!(socket.room in rooms)) {
                 console.log("Creating room '" + socket.room + "'");
                 rooms[socket.room] = { members: {}, messages: [] };
             }
@@ -100,10 +104,10 @@ io.on('connection', function (socket) {
                 console.log(data);
                 socket.emit('message', data);
             });
-            rooms[socket.room].messages.push({ messageType: 'actionMessage', message: socket.nickname + " has joined room '" + socket.room + "'"});
-            io.to(socket.room).emit('message', { messageType: 'actionMessage', message: socket.nickname + " has joined room '" + socket.room + "'"});
+            rooms[socket.room].messages.push({ messageType: 'actionMessage', message: socket.nickname + " has joined room '" + socket.room + "'" });
+            io.to(socket.room).emit('message', { messageType: 'actionMessage', message: socket.nickname + " has joined room '" + socket.room + "'" });
         } else {
-            callback(false);
+            callback("Invalid room");
         }
     });
 
@@ -117,13 +121,14 @@ io.on('connection', function (socket) {
         console.log("Deleting user '" + socket.nickname + "'");
         delete users[socket.nickname];
         delete rooms[socket.room].members[socket.nickname];
-        rooms[socket.room].messages.push({ messageType: 'actionMessage', message: socket.nickname + " has left the room"});
-        io.to(socket.room).emit('message', { messageType: 'actionMessage', message: socket.nickname + " has left the room"});
+        rooms[socket.room].messages.push({ messageType: 'actionMessage', message: socket.nickname + " has left the room" });
+        io.to(socket.room).emit('message', { messageType: 'actionMessage', message: socket.nickname + " has left the room" });
 
         //checks if room needs to be deleted
         if (Object.keys(rooms[socket.room].members).length === 0) {
-            console.log("Deleting room '" + socket.room + "'");
-            delete rooms[socket.room];
+            //console.log("Deleting room '" + socket.room + "'");
+            //delete rooms[socket.room];
+            console.log("Room is now empty");
         }
     });
 });
@@ -136,15 +141,15 @@ var server = http.listen(8082, function () {
 
 function generateHSLColor(colorArray) {
     color = Math.round(Math.random() * 360);
-    checkIfUnique = function(color,colorArray){
-        colorArray.forEach((storedColor)=>{
-            if (color < (storedColor + 10) && color > (storedColor + 10)){
+    checkIfUnique = function (color, colorArray) {
+        colorArray.forEach((storedColor) => {
+            if (color < (storedColor + 10) && color > (storedColor + 10)) {
                 return true;
             }
         });
         return false;
     }
-    while (checkIfUnique(color,colorArray)) {
+    while (checkIfUnique(color, colorArray)) {
         color = Math.round(Math.random() * 360);
     }
     return color;

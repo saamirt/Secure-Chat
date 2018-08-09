@@ -17,7 +17,7 @@ socket.emit('new connection', function (data) {
 
     if (query['theme']){
         if (query['theme'].toLowerCase() == "dark"){
-            $('body').addClass(query['theme'].toLowerCase());
+            $('#toggleTheme').click();
         }
     }
 });
@@ -67,14 +67,14 @@ $('#nickInput').keyup(function (event) {
 $('#roomInput').keyup(function (event) {
     if (event.keyCode === 13) {
         socket.emit('change room', { room: $('#roomInput').val().toLowerCase().trim() }, function (data) {
-            if (data) {
+            if (data === true) {
                 roomID = $('#roomInput').val().toLowerCase();
                 $('.roomID').text(roomID);
                 $('#roomInput').attr("placeholder", "Enter Room ID");
                 $('#chatMessages').empty();
             } else {
-                console.log("Invalid Room");
-                $('#roomInput').attr("placeholder", "Invalid Room");
+                console.log(data);
+                $('#roomInput').attr("placeholder", data);
             }
             $('#roomInput').val('');
         });

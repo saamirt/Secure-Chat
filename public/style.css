@@ -28,7 +28,7 @@ html {
 }
 
 body {
-    transition: background-color 600ms ease-out;
+    transition: background-color 300ms ease-out;
     font-family: 'Montserrat', sans-serif;
     background-color: hsl(269, 100%, 50%);
 }
@@ -45,7 +45,7 @@ body.dark{
     background-size: 54px;
     opacity: 0.15;
     z-index: -1;
-    transition: all 2s ease-out;
+    transition: all 450ms ease-out;
 }
 
 body.dark .bgPattern{
