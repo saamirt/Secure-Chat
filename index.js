@@ -34,8 +34,9 @@ io.on('connection', function (socket) {
     socket.on('message', function (message) {
         if (!message) { return };
         console.log("'" + socket.nickname + "' to room '" + socket.room + "' : " + message);
-        rooms[socket.room].messages.push({ messageType: 'plainMessage', message: message, title: { value: socket.nickname, color: rooms[socket.room].members[socket.nickname].color } });
-        io.to(socket.room).emit('message', { messageType: 'plainMessage', message: message, title: { value: socket.nickname, color: rooms[socket.room].members[socket.nickname].color } });
+        data = { messageType: 'plainMessage', message: message, title: { value: socket.nickname, color: rooms[socket.room].members[socket.nickname].color } }
+        rooms[socket.room].messages.push(data);
+        io.to(socket.room).emit('message', data);
     });
 
     socket.on('new user', function (data, callback) {
@@ -44,26 +45,8 @@ io.on('connection', function (socket) {
         } else {
             callback(true);
             socket.nickname = data.nickname;
-            socket.room = data.room;
-            if (!(socket.room in rooms)) {
-                console.log("Creating room '" + socket.room + "'");
-                rooms[socket.room] = { members: {}, messages: [] };
-            }
-            colorArray = Object.values(rooms[socket.room].members).reduce(function (obj, member) {
-                obj.push(member.color);
-                return obj;
-            }, []);
-            color = generateHSLColor(colorArray);
-            rooms[socket.room].members[socket.nickname] = { color: color };
-
-            socket.join(socket.room);
-            rooms[socket.room].messages.forEach(data => {
-                console.log(data);
-                socket.emit('message', data);
-            });
-            rooms[socket.room].messages.push({ messageType: 'actionMessage', message: socket.nickname + " has joined room '" + socket.room + "'" });
-            io.to(socket.room).emit('message', { messageType: 'actionMessage', message: socket.nickname + " has joined room '" + socket.room + "'" });
             users[socket.nickname] = socket;
+            socket = addUserToRoom(socket, data.room);
             console.log("User chose '" + socket.nickname + "' as their nickname and joined room '" + socket.room + "'");
         }
     });
@@ -74,38 +57,12 @@ io.on('connection', function (socket) {
                 callback("You are already in this room");
                 return;
             };
-            callback(true);
             if (!socket.nickname) { return };
 
-            socket.leave(socket.room);
-
-            delete rooms[socket.room].members[socket.nickname];
-
-            //checks if room needs to be deleted
-            if (Object.keys(rooms[socket.room].members).length === 0) {
-                //console.log("Deleting room '" + socket.room + "'");
-                //delete rooms[socket.room];
-                console.log("Room is now empty");
-            }
-
-            socket.room = data.room;
-            if (!(socket.room in rooms)) {
-                console.log("Creating room '" + socket.room + "'");
-                rooms[socket.room] = { members: {}, messages: [] };
-            }
-            colorArray = Object.values(rooms[socket.room].members).reduce(function (obj, member) {
-                obj.push(member.color);
-                return obj;
-            }, []);
-            color = generateHSLColor(colorArray);
-            rooms[socket.room].members[socket.nickname] = { color: color };
-            socket.join(socket.room);
-            rooms[socket.room].messages.forEach(data => {
-                console.log(data);
-                socket.emit('message', data);
+            socket = leaveRoom(socket, () => {
+                callback(true);
+                socket = addUserToRoom(socket, data.room);
             });
-            rooms[socket.room].messages.push({ messageType: 'actionMessage', message: socket.nickname + " has joined room '" + socket.room + "'" });
-            io.to(socket.room).emit('message', { messageType: 'actionMessage', message: socket.nickname + " has joined room '" + socket.room + "'" });
         } else {
             callback("Invalid room");
         }
@@ -117,19 +74,8 @@ io.on('connection', function (socket) {
         //quits if user didn't get past choosing a nickname
         if (!socket.nickname) { return };
 
-        //removes user from room and user objects
-        console.log("Deleting user '" + socket.nickname + "'");
-        delete users[socket.nickname];
-        delete rooms[socket.room].members[socket.nickname];
-        rooms[socket.room].messages.push({ messageType: 'actionMessage', message: socket.nickname + " has left the room" });
-        io.to(socket.room).emit('message', { messageType: 'actionMessage', message: socket.nickname + " has left the room" });
-
-        //checks if room needs to be deleted
-        if (Object.keys(rooms[socket.room].members).length === 0) {
-            //console.log("Deleting room '" + socket.room + "'");
-            //delete rooms[socket.room];
-            console.log("Room is now empty");
-        }
+        socket = leaveRoom(socket);
+        deleteUser(socket);
     });
 });
 
@@ -138,6 +84,57 @@ var server = http.listen(8082, function () {
 
     console.log('Secure Chat listening at http://localhost:' + port);
 });
+
+function leaveRoom(socket, callback) {
+    delete rooms[socket.room].members[socket.nickname];
+    leaveMessage = { messageType: 'actionMessage', message: socket.nickname + " has left the room" };
+    rooms[socket.room].messages.push(leaveMessage);
+    io.to(socket.room).emit('message', leaveMessage);
+
+    //checks if room needs to be deleted
+    if (Object.keys(rooms[socket.room].members).length === 0) {
+        //console.log("Deleting room '" + socket.room + "'");
+        //delete rooms[socket.room];
+        console.log("Room is now empty");
+    }
+    socket.room = ""
+    if (callback) {
+        callback();
+    }
+    return socket;
+}
+
+function deleteUser(socket) {
+    //removes user from room and user objects
+    console.log("Deleting user '" + socket.nickname + "'");
+    delete users[socket.nickname];
+}
+
+function addUserToRoom(socket, newRoom) {
+
+    socket.room = newRoom;
+    if (!(socket.room in rooms)) {
+        console.log("Creating room '" + socket.room + "'");
+        rooms[socket.room] = { members: {}, messages: [] };
+    }
+    colorArray = Object.values(rooms[socket.room].members).reduce(function (obj, member) {
+        obj.push(member.color);
+        return obj;
+    }, []);
+    color = generateHSLColor(colorArray);
+    rooms[socket.room].members[socket.nickname] = { color: color };
+
+    socket.join(socket.room);
+    rooms[socket.room].messages.forEach(data => {
+        console.log(data);
+        socket.emit('message', data);
+    });
+    var joinMessage = { messageType: 'actionMessage', message: socket.nickname + " has joined room '" + socket.room + "'" };
+    rooms[socket.room].messages.push(joinMessage);
+    io.to(socket.room).emit('message', joinMessage);
+
+    return socket;
+}
 
 function generateHSLColor(colorArray) {
     color = Math.round(Math.random() * 360);
