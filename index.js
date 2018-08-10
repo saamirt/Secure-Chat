@@ -24,11 +24,19 @@ io.on('connection', function (socket) {
     console.log('SOCKET.IO :: New User Joined');
 
     socket.on('new connection', function (callback) {
-        var randNum = Math.round(Math.random() * (2 ** 50)) + 1000000000;
-        while (randNum in rooms) {
-            randNum = Math.round(Math.random() * (2 ** 50)) + 1000000000;
+        generateRoom = function () {
+            var chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            var room = ""
+            for (var i = 0; i < 10; i++) {
+                room += chars[Math.floor(Math.random() * chars.length)];
+            }
+            return room
         }
-        callback(randNum.toString().slice(0, 10));
+        var room = generateRoom();
+        while (room in rooms) {
+            room = generateRoom();
+        }
+        callback(room);
     })
 
     socket.on('message', function (message) {
